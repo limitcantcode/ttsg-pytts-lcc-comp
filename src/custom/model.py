@@ -7,9 +7,10 @@ and available voices for your OS can be found using get_available_voices
 import pyttsx3
 import logging
 import os
+import wave
 
 class OldTTSModel():
-    TEMP_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),'temp/output.wav')
+    TEMP_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),'temp','output.wav')
     def __init__(self, voice_name, gender):
         self.engine = pyttsx3.init()
         
@@ -24,5 +25,5 @@ class OldTTSModel():
         logging.debug(f"Generating speech from text: {content}.")
         self.engine.save_to_file(content, self.TEMP_FILE)
         self.engine.runAndWait()
-        with open(self.TEMP_FILE, 'rb') as f:
-            return f.read()
+        with wave.open(self.TEMP_FILE, 'r') as f:
+            return f.readframes(f.getnframes()), f.getframerate(), f.getsampwidth(), f.getnchannels()

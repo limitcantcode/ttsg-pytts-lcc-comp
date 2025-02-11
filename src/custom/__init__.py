@@ -11,9 +11,11 @@ To support streaming, your implementation should be a generator: https://wiki.py
 You may also simply return the final result
 '''
 
-import os
 from .model import OldTTSModel
-ttsg_model = OldTTSModel(os.getenv("VOICE"),os.getenv("GENDER"))
+from .config import config
+
+MAX_AUDIO_BYTES = 4096
+ttsg_model = OldTTSModel(config['voice'],config['gender'])
 
 from jaison_grpc.common import STTComponentRequest, T2TComponentRequest, TTSGComponentRequest, TTSCComponentRequest
 async def request_unpacker(request_iterator):
@@ -30,17 +32,27 @@ async def request_unpacker(request_iterator):
             case _:
                 raise Exception(f"Unknown request type: {type(request_o)}")
 
-async def is_sentence(sentence):
+def is_sentence(sentence):
     return sentence.endswith('.')
 
 # For text-to-speech generation
 async def start_ttsg(request_iterator):
-    global ttsg_model
+    global ttsg_model, MAX_AUDIO_BYTES
     sentence = ""
     async for content in request_unpacker(request_iterator): # receiving chunks of info through a stream
         sentence += content
         if is_sentence(sentence):
-            yield ttsg_model(sentence) # TODO
+            audio_bytes, sr, sw, ch = ttsg_model(sentence)
+            while len(audio_bytes) > 0:
+                yield audio_bytes[:MAX_AUDIO_BYTES], sr, sw, ch
+                audio_bytes = audio_bytes[MAX_AUDIO_BYTES:]
+            yield ttsg_model(sentence)
+            sentence = ""
+    if len(sentence) > 0:
+        audio_bytes, sr, sw, ch = ttsg_model(sentence)
+        while len(audio_bytes) > 0:
+            yield audio_bytes[:MAX_AUDIO_BYTES], sr, sw, ch
+            audio_bytes = audio_bytes[MAX_AUDIO_BYTES:]
 
 # For speech-to-text models
 async def start_stt(request_iterator) -> str:
