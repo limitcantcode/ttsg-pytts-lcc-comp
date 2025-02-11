@@ -20,12 +20,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Furthermore, create a `.env` file in the root of this project with the following:
-```
-VOICE=<name of voice like en-GB-scotlan for espeak>
-GENDER=<male or female>
-```
-
 ## Testing
 Assuming you are in the right virtual environment and are in the root directory:
 ```
@@ -34,7 +28,7 @@ python ./src/main.py --port=5000
 If it runs, it should be fine.
 
 ## Configuration
-There is no configuration.
+Inside of `config.json`, adjust `voice` and `gender` (`male` or `female`) to your liking. Available voices are shown when running the command under [Testing](#testing).
 
 ## Related stuff
 Project J.A.I.son: https://github.com/limitcantcode/jaison-core
