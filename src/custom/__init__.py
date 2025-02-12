@@ -1,6 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv(dotenv_path='E:\\env\\jaison-core.env.txt')
-
 '''
 Supported component type entrypoints
 
