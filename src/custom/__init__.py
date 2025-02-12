@@ -43,7 +43,6 @@ async def start_ttsg(request_iterator):
             while len(audio_bytes) > 0:
                 yield audio_bytes[:MAX_AUDIO_BYTES], sr, sw, ch
                 audio_bytes = audio_bytes[MAX_AUDIO_BYTES:]
-            yield ttsg_model(sentence)
             sentence = ""
     if len(sentence) > 0:
         audio_bytes, sr, sw, ch = ttsg_model(sentence)
